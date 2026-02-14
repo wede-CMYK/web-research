@@ -3,786 +3,1172 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>智能目标识别门闸系统 - 项目调研</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <title>陈思颖 · 201天</title>
     <style>
-        /* 自定义滚动条 */
-        ::-webkit-scrollbar { width: 8px; }
-        ::-webkit-scrollbar-track { background: #0f172a; }
-        ::-webkit-scrollbar-thumb { background: linear-gradient(180deg, #3b82f6, #8b5cf6); border-radius: 4px; }
-
-        /* 动态背景 */
-        .cyber-bg {
-            background: linear-gradient(135deg, #0f172a 0%, #1e293b 50%, #0f172a 100%);
-            position: relative;
-            overflow: hidden;
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
         }
-        
-        .cyber-grid {
+
+        :root {
+            --primary-green: #86efac;
+            --soft-pink: #ff6b9d;
+            --glass-bg: rgba(255, 255, 255, 0.05);
+            --glass-border: rgba(255, 255, 255, 0.1);
+        }
+
+        body {
+            font-family: 'Helvetica Neue', 'PingFang SC', 'Microsoft YaHei', sans-serif;
+            background: #0a0e27;
+            min-height: 100vh;
+            color: #fff;
+            overflow-x: hidden;
+            cursor: none;
+            position: relative;
+        }
+
+        /* 星空背景 - 星星向下动 */
+        .stars, .stars2, .stars3 {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 200%;
+            pointer-events: none;
+            z-index: 0;
+            animation: starsFall 60s linear infinite;
+        }
+
+        .stars2 {
+            animation-duration: 80s;
+            animation-delay: -20s;
+        }
+
+        .stars3 {
+            animation-duration: 100s;
+            animation-delay: -40s;
+        }
+
+        @keyframes starsFall {
+            0% {
+                transform: translateY(-50%);
+            }
+            100% {
+                transform: translateY(0%);
+            }
+        }
+
+        .star {
             position: absolute;
+            width: 2px;
+            height: 2px;
+            background: #fff;
+            border-radius: 50%;
+            animation: twinkle 3s infinite ease-in-out;
+        }
+
+        @keyframes twinkle {
+            0%, 100% { opacity: 0.3; }
+            50% { opacity: 1; }
+        }
+
+        /* 极光效果 */
+        .aurora {
+            position: fixed;
             top: 0;
             left: 0;
             width: 100%;
             height: 100%;
-            background-image: 
-                linear-gradient(rgba(59, 130, 246, 0.03) 1px, transparent 1px),
-                linear-gradient(90deg, rgba(59, 130, 246, 0.03) 1px, transparent 1px);
-            background-size: 40px 40px;
-            animation: gridMove 20s linear infinite;
-        }
-        
-        @keyframes gridMove {
-            0% { transform: perspective(500px) rotateX(60deg) translateY(0); }
-            100% { transform: perspective(500px) rotateX(60deg) translateY(40px); }
-        }
-
-        /* 浮动粒子 */
-        .particle {
-            position: absolute;
-            width: 4px;
-            height: 4px;
-            background: #3b82f6;
-            border-radius: 50%;
-            box-shadow: 0 0 10px #3b82f6, 0 0 20px #3b82f6;
-            animation: float 15s infinite;
+            pointer-events: none;
+            z-index: 0;
+            background: linear-gradient(180deg, rgba(134, 239, 172, 0.1) 0%, rgba(34, 211, 238, 0.1) 50%, rgba(255, 107, 157, 0.05) 100%);
+            animation: auroraShift 20s ease infinite;
             opacity: 0.6;
         }
-        
-        @keyframes float {
-            0%, 100% { transform: translateY(100vh) scale(0); opacity: 0; }
-            10% { opacity: 0.6; }
-            90% { opacity: 0.6; }
-            100% { transform: translateY(-100vh) scale(1); opacity: 0; }
+
+        @keyframes auroraShift {
+            0%, 100% {
+                transform: translateY(0) scale(1);
+                background-position: 0% 50%;
+            }
+            50% {
+                transform: translateY(-20px) scale(1.1);
+                background-position: 100% 50%;
+            }
         }
 
-        /* 霓虹发光文字 */
-        .neon-text {
-            text-shadow: 0 0 10px rgba(59, 130, 246, 0.8),
-                         0 0 20px rgba(59, 130, 246, 0.6),
-                         0 0 30px rgba(59, 130, 246, 0.4);
+        /* 自定义光标 */
+        .cursor {
+            width: 20px;
+            height: 20px;
+            border: 2px solid rgba(255, 255, 255, 0.8);
+            border-radius: 50%;
+            position: fixed;
+            pointer-events: none;
+            z-index: 9999;
+            transition: all 0.15s ease;
+            transform: translate(-50%, -50%);
         }
 
-        /* 科幻卡片 */
-        .cyber-card {
-            background: linear-gradient(135deg, rgba(30, 41, 59, 0.8) 0%, rgba(15, 23, 42, 0.9) 100%);
-            border: 1px solid rgba(59, 130, 246, 0.2);
-            backdrop-filter: blur(10px);
+        .cursor-dot {
+            width: 6px;
+            height: 6px;
+            background: #fff;
+            border-radius: 50%;
+            position: fixed;
+            pointer-events: none;
+            z-index: 9999;
+            transform: translate(-50%, -50%);
+        }
+
+        .cursor.hover {
+            width: 50px;
+            height: 50px;
+            border-color: rgba(255, 107, 157, 0.8);
+            background: rgba(255, 107, 157, 0.1);
+        }
+
+        /* 流星样式 - 星空流星 */
+        .meteor {
+            position: fixed;
+            top: 0;
+            width: 200px;
+            height: 2px;
+            background: linear-gradient(90deg, rgba(255, 255, 255, 0) 0%, rgba(134, 239, 172, 0.8) 50%, rgba(255, 255, 255, 0) 100%);
+            border-radius: 0 50% 50% 0;
+            transform: rotate(-45deg);
+            pointer-events: none;
+            z-index: 1;
+            animation: meteorFall 5s linear forwards;
+            opacity: 0;
+        }
+
+        @keyframes meteorFall {
+            0% {
+                opacity: 0;
+                transform: rotate(-45deg) translateX(120vw);
+            }
+            10% {
+                opacity: 1;
+            }
+            90% {
+                opacity: 1;
+            }
+            100% {
+                opacity: 0;
+                transform: rotate(-45deg) translateX(-120vw);
+            }
+        }
+
+        /* 羽毛爆炸效果 */
+        .feather {
+            position: fixed;
+            font-size: 24px;
+            pointer-events: none;
+            z-index: 100;
+            animation: featherFall 1.5s ease forwards;
+        }
+
+        @keyframes featherFall {
+            0% {
+                transform: translate(0, 0) rotate(0deg);
+                opacity: 1;
+            }
+            100% {
+                transform: translate(calc(var(--tx, 0) * 1px), calc(var(--ty, 0) * 1px)) rotate(var(--rot, 0)deg);
+                opacity: 0;
+            }
+        }
+
+        .container {
             position: relative;
-            overflow: hidden;
-            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            z-index: 2;
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 60px 30px;
         }
-        
-        .cyber-card::before {
+
+        /* 头部 - 更好看的样式 */
+        header {
+            text-align: center;
+            margin-bottom: 80px;
+            opacity: 0;
+            animation: fadeInUp 1.2s ease-out 0.3s forwards;
+        }
+
+        header h1 {
+            font-size: 3.5rem;
+            font-weight: 200;
+            letter-spacing: 8px;
+            margin-bottom: 20px;
+            background: linear-gradient(135deg, #ff6b9d, #c44569, #f8b500);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            transition: all 0.5s ease;
+        }
+
+        header h1:hover {
+            letter-spacing: 12px;
+        }
+
+        header .subtitle {
+            font-size: 1.5rem;
+            background: linear-gradient(135deg, #86efac, #4ade80, #22d3ee);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            letter-spacing: 4px;
+            font-weight: 400;
+            padding: 15px 40px;
+            display: inline-block;
+            position: relative;
+            animation: subtitleGlow 3s ease-in-out infinite;
+        }
+
+        header .subtitle::before {
             content: '';
             position: absolute;
             top: 0;
-            left: -100%;
-            width: 100%;
-            height: 100%;
-            background: linear-gradient(90deg, transparent, rgba(59, 130, 246, 0.1), transparent);
-            transition: left 0.5s;
-        }
-        
-        .cyber-card:hover::before { left: 100%; }
-        .cyber-card:hover {
-            transform: translateY(-5px) scale(1.02);
-            border-color: rgba(59, 130, 246, 0.5);
-            box-shadow: 0 20px 40px rgba(59, 130, 246, 0.2),
-                        0 0 30px rgba(59, 130, 246, 0.1) inset;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(135deg, rgba(134, 239, 172, 0.1), rgba(34, 211, 238, 0.1));
+            border-radius: 50px;
+            z-index: -1;
         }
 
-        /* 科幻按钮 */
-        .cyber-btn {
-            position: relative;
-            background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
-            border: 2px solid #3b82f6;
-            color: #3b82f6;
-            overflow: hidden;
-            transition: all 0.3s;
-            text-transform: uppercase;
-            letter-spacing: 2px;
+        @keyframes subtitleGlow {
+            0%, 100% {
+                filter: drop-shadow(0 0 10px rgba(134, 239, 172, 0.3));
+            }
+            50% {
+                filter: drop-shadow(0 0 20px rgba(134, 239, 172, 0.6));
+            }
         }
-        
-        .cyber-btn::before {
+
+        /* 天数展示 - 这里是你要替换的图片位置 */
+        .days-section {
+            margin-bottom: 100px;
+            opacity: 0;
+            animation: fadeInUp 1.2s ease-out 0.6s forwards;
+        }
+
+        .days-container {
+            /* ======================
+               👇 只改这里的引号内容！👇
+               ====================== */
+            background: url('love.jpg') center/cover no-repeat;
+            /* ======================
+               👆 只改这里的引号内容！👆
+               ====================== */
+            position: relative;
+            backdrop-filter: blur(20px);
+            border: 1px solid var(--glass-border);
+            border-radius: 30px;
+            padding: 120px 60px;
+            text-align: center;
+            transition: all 0.5s cubic-bezier(0.23, 1, 0.32, 1);
+            overflow: hidden;
+        }
+
+        .days-container::before {
             content: '';
             position: absolute;
             top: 0;
-            left: -100%;
-            width: 100%;
-            height: 100%;
-            background: linear-gradient(90deg, transparent, #3b82f6, transparent);
-            transition: left 0.5s;
-        }
-        
-        .cyber-btn:hover {
-            background: #3b82f6;
-            color: #fff;
-            box-shadow: 0 0 30px rgba(59, 130, 246, 0.5);
-            transform: scale(1.05);
-        }
-        
-        .cyber-btn:hover::before { left: 100%; }
-        .cyber-btn:active { transform: scale(0.95); }
-
-        /* 扫描线动画 */
-        .scan-line {
-            position: absolute;
             left: 0;
             width: 100%;
-            height: 2px;
-            background: linear-gradient(90deg, transparent, #10b981, #3b82f6, transparent);
-            animation: scan 2s ease-in-out infinite;
-            box-shadow: 0 0 10px #10b981, 0 0 20px #3b82f6;
-        }
-        
-        @keyframes scan {
-            0% { top: 0; opacity: 1; }
-            50% { top: calc(100% - 2px); opacity: 0.5; }
-            100% { top: 0; opacity: 1; }
+            height: 100%;
+            background: linear-gradient(135deg, rgba(0, 0, 0, 0.6), rgba(0, 0, 0, 0.4));
+            z-index: 0;
         }
 
-        /* 脉冲动画 */
-        .pulse { animation: pulse 2s infinite; }
-        @keyframes pulse {
-            0%, 100% { opacity: 1; }
-            50% { opacity: 0.5; }
+        .days-container > * {
+            position: relative;
+            z-index: 1;
         }
 
-        /* 平滑滚动 */
-        html { scroll-behavior: smooth; }
-        
-        /* 导航栏玻璃态 */
-        .glass-nav {
-            background: rgba(15, 23, 42, 0.8);
+        .days-container:hover {
+            transform: translateY(-10px) scale(1.02);
+            box-shadow: 0 30px 60px rgba(0, 0, 0, 0.3);
+        }
+
+        .days-label {
+            font-size: 1.2rem;
+            color: rgba(255, 255, 255, 0.9);
+            letter-spacing: 5px;
+            margin-bottom: 30px;
+            text-transform: uppercase;
+        }
+
+        .days-number {
+            font-size: 4rem;
+            font-weight: 300;
+            line-height: 1.2;
+            margin: 30px 0;
+            cursor: none;
+            transition: all 0.5s ease;
+            display: inline-block;
+            text-shadow: 0 5px 20px rgba(0, 0, 0, 0.5);
+        }
+
+        .days-number .together {
+            font-size: 2.5rem;
+            display: block;
+            margin-bottom: 10px;
+            background: linear-gradient(135deg, #fff, #ff6b9d);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            transition: all 0.3s ease;
+        }
+
+        /* 201每个字单独放大 - 可爱好看 */
+        .days-number .main {
+            font-size: 7rem;
+            font-weight: 200;
+            transition: all 0.3s ease;
+            display: inline-block;
+        }
+
+        .days-number .char {
+            display: inline-block;
+            background: linear-gradient(135deg, #fff, #ff6b9d, #f8b500);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            transition: all 0.3s cubic-bezier(0.23, 1, 0.32, 1);
+            text-shadow: 0 0 20px rgba(255, 107, 157, 0.3);
+        }
+
+        .days-number .char:hover {
+            transform: scale(1.3) rotate(-5deg);
+            filter: drop-shadow(0 0 30px rgba(255, 107, 157, 0.6));
+        }
+
+        .days-desc {
+            font-size: 1.3rem;
+            background: linear-gradient(135deg, #86efac, #4ade80);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            letter-spacing: 2px;
+            margin-top: 30px;
+            transition: all 0.3s ease;
+        }
+
+        .days-desc:hover {
+            transform: scale(1.05);
+        }
+
+        /* 关心话语卡片 - 星空科幻感 */
+        .care-section {
+            opacity: 0;
+            animation: fadeInUp 1.2s ease-out 0.9s forwards;
+            margin-bottom: 80px;
+        }
+
+        .section-title {
+            font-size: 1.5rem;
+            text-align: center;
+            margin-bottom: 50px;
+            letter-spacing: 5px;
+            color: rgba(255, 255, 255, 0.8);
+            font-weight: 300;
+        }
+
+        .care-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 25px;
+        }
+
+        .care-card {
+            background: linear-gradient(135deg, rgba(134, 239, 172, 0.05), rgba(34, 211, 238, 0.05));
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(134, 239, 172, 0.2);
+            border-radius: 20px;
+            padding: 40px 30px;
+            text-align: center;
+            transition: all 0.4s cubic-bezier(0.23, 1, 0.32, 1);
+            position: relative;
+            overflow: hidden;
+            cursor: none;
+        }
+
+        .care-card::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: linear-gradient(45deg, transparent, rgba(134, 239, 172, 0.1), transparent);
+            animation: cardShine 3s linear infinite;
+        }
+
+        @keyframes cardShine {
+            0% {
+                transform: rotate(0deg) translateX(-100%);
+            }
+            100% {
+                transform: rotate(45deg) translateX(100%);
+            }
+        }
+
+        .care-card:hover {
+            transform: translateY(-15px) scale(1.03);
+            border-color: rgba(134, 239, 172, 0.5);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.2),
+                        0 0 60px rgba(134, 239, 172, 0.2),
+                        inset 0 0 30px rgba(134, 239, 172, 0.05);
+        }
+
+        .care-icon {
+            font-size: 2.5rem;
+            margin-bottom: 20px;
+            display: block;
+            transition: all 0.4s ease;
+            position: relative;
+            z-index: 1;
+            animation: iconFloat 3s ease-in-out infinite;
+        }
+
+        @keyframes iconFloat {
+            0%, 100% {
+                transform: translateY(0);
+            }
+            50% {
+                transform: translateY(-10px);
+            }
+        }
+
+        .care-card:hover .care-icon {
+            transform: scale(1.2) rotate(10deg);
+        }
+
+        .care-text {
+            font-size: 1.1rem;
+            color: rgba(255, 255, 255, 0.85);
+            letter-spacing: 1px;
+            position: relative;
+            z-index: 1;
+        }
+
+        /* 关心话语按钮区域 */
+        .message-section {
+            opacity: 0;
+            animation: fadeInUp 1.2s ease-out 1.1s forwards;
+            margin-bottom: 80px;
+        }
+
+        .btn-group {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+        }
+
+        .care-btn {
+            background: linear-gradient(135deg, rgba(134, 239, 172, 0.05), rgba(34, 211, 238, 0.05));
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(134, 239, 172, 0.2);
+            border-radius: 15px;
+            padding: 18px 25px;
+            color: rgba(255, 255, 255, 0.9);
+            font-size: 1rem;
+            letter-spacing: 1px;
+            cursor: none;
+            transition: all 0.3s cubic-bezier(0.23, 1, 0.32, 1);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .care-btn::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(134, 239, 172, 0.2), transparent);
+            transition: all 0.5s ease;
+        }
+
+        .care-btn:hover {
+            transform: translateY(-5px);
+            border-color: var(--primary-green);
+            box-shadow: 0 10px 30px rgba(134, 239, 172, 0.2);
+        }
+
+        .care-btn:hover::before {
+            left: 100%;
+        }
+
+        .care-btn:active {
+            transform: translateY(-2px);
+        }
+
+        /* 关心话语弹窗 - 星空科幻感 */
+        .modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.7);
+            backdrop-filter: blur(10px);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 9990;
+            opacity: 0;
+            pointer-events: none;
+            transition: all 0.5s ease;
+        }
+
+        .modal.active {
+            opacity: 1;
+            pointer-events: all;
+        }
+
+        .modal-content {
+            background: linear-gradient(135deg, rgba(26, 26, 46, 0.9), rgba(22, 33, 62, 0.9));
             backdrop-filter: blur(20px);
-            border-bottom: 1px solid rgba(59, 130, 246, 0.2);
+            border: 1px solid rgba(134, 239, 172, 0.3);
+            border-radius: 25px;
+            max-width: 600px;
+            width: 90%;
+            padding: 50px 40px;
+            position: relative;
+            transform: scale(0.8) rotateY(-10deg);
+            transition: all 0.6s cubic-bezier(0.23, 1, 0.32, 1);
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5),
+                        0 0 40px rgba(134, 239, 172, 0.1),
+                        inset 0 0 60px rgba(134, 239, 172, 0.05);
         }
 
-        /* 图标发光 */
-        .glow-icon {
-            transition: all 0.3s;
-        }
-        .glow-icon:hover {
-            filter: drop-shadow(0 0 10px currentColor);
-            transform: scale(1.1);
+        .modal-content::before {
+            content: '';
+            position: absolute;
+            top: -2px;
+            left: -2px;
+            right: -2px;
+            bottom: -2px;
+            background: linear-gradient(45deg, #86efac, #22d3ee, #ff6b9d, #86efac);
+            background-size: 400% 400%;
+            border-radius: 25px;
+            z-index: -1;
+            animation: borderGlow 3s ease infinite;
+            opacity: 0.5;
         }
 
-        /* 表格科幻样式 */
-        .cyber-table {
-            background: linear-gradient(135deg, rgba(30, 41, 59, 0.6) 0%, rgba(15, 23, 42, 0.8) 100%);
-            border: 1px solid rgba(59, 130, 246, 0.3);
+        @keyframes borderGlow {
+            0%, 100% {
+                background-position: 0% 50%;
+            }
+            50% {
+                background-position: 100% 50%;
+            }
         }
-        .cyber-table th {
-            background: linear-gradient(90deg, rgba(59, 130, 246, 0.2), transparent);
-            border-bottom: 1px solid rgba(59, 130, 246, 0.3);
+
+        .modal.active .modal-content {
+            transform: scale(1) rotateY(0deg);
         }
-        .cyber-table tr {
-            transition: all 0.3s;
+
+        .modal-text {
+            font-size: 1.2rem;
+            line-height: 1.8;
+            color: rgba(255, 255, 255, 0.95);
+            text-align: center;
+            margin-bottom: 30px;
+            text-shadow: 0 0 20px rgba(134, 239, 172, 0.3);
         }
-        .cyber-table tbody tr:hover {
-            background: rgba(59, 130, 246, 0.1);
+
+        .close-btn {
+            background: linear-gradient(135deg, rgba(134, 239, 172, 0.8), rgba(34, 211, 238, 0.8));
+            border: none;
+            border-radius: 12px;
+            padding: 12px 35px;
+            color: #1a1a2e;
+            font-size: 1rem;
+            cursor: none;
+            transition: all 0.3s ease;
+            display: block;
+            margin: 0 auto;
+            font-weight: 500;
+            box-shadow: 0 5px 20px rgba(134, 239, 172, 0.3);
+        }
+
+        .close-btn:hover {
+            transform: scale(1.05);
+            box-shadow: 0 10px 30px rgba(134, 239, 172, 0.5);
+        }
+
+        /* 爱你哦小鬼 弹框 - 好看柔和 */
+        .love-toast {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%) scale(0.5);
+            background: linear-gradient(135deg, rgba(255, 255, 255, 0.95), rgba(255, 235, 245, 0.95));
+            backdrop-filter: blur(20px);
+            border: 2px solid rgba(255, 107, 157, 0.3);
+            border-radius: 30px;
+            padding: 40px 60px;
+            color: #c44569;
+            font-size: 1.6rem;
+            font-weight: 600;
+            letter-spacing: 3px;
+            z-index: 9999;
+            opacity: 0;
+            pointer-events: none;
+            transition: all 0.6s cubic-bezier(0.23, 1, 0.32, 1);
+            box-shadow: 0 20px 60px rgba(255, 107, 157, 0.2),
+                        0 0 40px rgba(255, 255, 255, 0.3);
+        }
+
+        .love-toast::before {
+            content: '💕';
+            position: absolute;
+            top: -20px;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 2rem;
+            animation: heartFloat 2s ease-in-out infinite;
+        }
+
+        @keyframes heartFloat {
+            0%, 100% {
+                transform: translateX(-50%) translateY(0);
+            }
+            50% {
+                transform: translateX(-50%) translateY(-10px);
+            }
+        }
+
+        .love-toast.active {
+            opacity: 1;
+            transform: translate(-50%, -50%) scale(1);
+            pointer-events: all;
+        }
+
+        /* 页脚 */
+        footer {
+            text-align: center;
+            margin-top: 100px;
+            padding-top: 40px;
+            border-top: 1px solid rgba(134, 239, 172, 0.2);
+            opacity: 0;
+            animation: fadeInUp 1.2s ease-out 1.2s forwards;
+        }
+
+        footer p {
+            color: rgba(255, 255, 255, 0.5);
+            font-size: 0.9rem;
+            letter-spacing: 2px;
+        }
+
+        /* 动画 */
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(40px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* 点击波纹效果 */
+        .ripple {
+            position: fixed;
+            border-radius: 50%;
+            background: rgba(134, 239, 172, 0.3);
+            transform: scale(0);
+            animation: rippleEffect 0.6s linear;
+            pointer-events: none;
+            z-index: 9998;
+        }
+
+        @keyframes rippleEffect {
+            to {
+                transform: scale(4);
+                opacity: 0;
+            }
+        }
+
+        /* 响应式 */
+        @media (max-width: 768px) {
+            body {
+                cursor: auto;
+            }
+
+            .cursor, .cursor-dot {
+                display: none;
+            }
+
+            header h1 {
+                font-size: 2.2rem;
+                letter-spacing: 4px;
+            }
+
+            header .subtitle {
+                font-size: 1.2rem;
+                padding: 12px 30px;
+            }
+
+            .days-container {
+                padding: 80px 30px;
+            }
+
+            .days-number .together {
+                font-size: 1.8rem;
+            }
+
+            .days-number .main {
+                font-size: 4.5rem;
+            }
+
+            .days-number .char {
+                font-size: 4.5rem;
+            }
+
+            .care-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .btn-group {
+                grid-template-columns: 1fr 1fr;
+            }
+
+            .care-btn {
+                padding: 15px 12px;
+                font-size: 0.9rem;
+            }
+
+            .modal-content {
+                padding: 40px 25px;
+            }
+
+            .modal-text {
+                font-size: 1.1rem;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .btn-group {
+                grid-template-columns: 1fr;
+            }
         }
     </style>
 </head>
-<body class="bg-slate-900 text-slate-100 font-sans">
+<body>
+    <!-- 星空背景 -->
+    <div class="stars" id="stars"></div>
+    <div class="stars2" id="stars2"></div>
+    <div class="stars3" id="stars3"></div>
 
-    <!-- 动态粒子背景 -->
-    <div class="fixed inset-0 pointer-events-none z-0">
-        <div class="particle" style="left: 10%; animation-delay: 0s;"></div>
-        <div class="particle" style="left: 20%; animation-delay: 2s;"></div>
-        <div class="particle" style="left: 30%; animation-delay: 4s;"></div>
-        <div class="particle" style="left: 40%; animation-delay: 1s;"></div>
-        <div class="particle" style="left: 50%; animation-delay: 3s;"></div>
-        <div class="particle" style="left: 60%; animation-delay: 5s;"></div>
-        <div class="particle" style="left: 70%; animation-delay: 2.5s;"></div>
-        <div class="particle" style="left: 80%; animation-delay: 4.5s;"></div>
-        <div class="particle" style="left: 90%; animation-delay: 1.5s;"></div>
+    <!-- 极光效果 -->
+    <div class="aurora"></div>
+
+    <!-- 自定义光标 -->
+    <div class="cursor" id="cursor"></div>
+    <div class="cursor-dot" id="cursor-dot"></div>
+
+    <!-- 关心话语弹窗 -->
+    <div class="modal" id="careModal">
+        <div class="modal-content">
+            <div class="modal-text" id="modalText"></div>
+            <button class="close-btn" id="closeModal" data-hover>我知道啦</button>
+        </div>
     </div>
 
-    <!-- 顶部导航栏 -->
-    <nav class="fixed top-0 left-0 right-0 z-50 glass-nav">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div class="flex items-center justify-between h-16">
-                <div class="flex items-center">
-                    <div class="relative">
-                        <i class="fa-solid fa-door-open text-blue-400 text-2xl mr-3 glow-icon"></i>
-                        <div class="absolute -top-1 -right-1 w-2 h-2 bg-emerald-400 rounded-full pulse"></div>
-                    </div>
-                    <span class="text-white font-bold text-xl tracking-wider">
-                        <span class="text-blue-400">//</span> GATE_SYSTEM
+    <!-- 爱你哦小鬼 弹框 - 好看柔和 -->
+    <div class="love-toast" id="loveToast">爱你哦小鬼 💕</div>
+
+    <div class="container">
+        <header>
+            <h1>陈思颖</h1>
+            <p class="subtitle">✨ 我们的第一个情人节 ✨</p>
+        </header>
+
+        <section class="days-section">
+            <div class="days-container" data-hover>
+                <div class="days-label">TOGETHER FOREVER</div>
+                <div class="days-number" id="daysClick">
+                    <span class="together">我们在一起</span>
+                    <span class="main">
+                        <span class="char" data-hover>2</span>
+                        <span class="char" data-hover>0</span>
+                        <span class="char" data-hover>1</span>
+                        <span class="char" data-hover>天</span>
                     </span>
                 </div>
-                <div class="hidden md:flex space-x-1">
-                    <a href="#home" class="px-4 py-2 text-slate-300 hover:text-blue-400 hover:bg-blue-400/10 rounded transition-all duration-300 border border-transparent hover:border-blue-400/30">
-                        <i class="fa-solid fa-home mr-2"></i>首页
-                    </a>
-                    <a href="#background" class="px-4 py-2 text-slate-300 hover:text-blue-400 hover:bg-blue-400/10 rounded transition-all duration-300 border border-transparent hover:border-blue-400/30">
-                        <i class="fa-solid fa-info-circle mr-2"></i>项目介绍
-                    </a>
-                    <a href="#tech" class="px-4 py-2 text-slate-300 hover:text-blue-400 hover:bg-blue-400/10 rounded transition-all duration-300 border border-transparent hover:border-blue-400/30">
-                        <i class="fa-solid fa-microchip mr-2"></i>技术方案
-                    </a>
-                    <a href="#demo" class="px-4 py-2 text-slate-300 hover:text-blue-400 hover:bg-blue-400/10 rounded transition-all duration-300 border border-transparent hover:border-blue-400/30">
-                        <i class="fa-solid fa-play-circle mr-2"></i>效果演示
-                    </a>
-                    <a href="#team" class="px-4 py-2 text-slate-300 hover:text-blue-400 hover:bg-blue-400/10 rounded transition-all duration-300 border border-transparent hover:border-blue-400/30">
-                        <i class="fa-solid fa-users mr-2"></i>关于我们
-                    </a>
-                </div>
+                <div class="days-desc">我的小鬼</div>
             </div>
-        </div>
-    </nav>
+        </section>
 
-    <!-- 首屏 Banner -->
-    <section id="home" class="pt-16 min-h-screen flex items-center justify-center cyber-bg relative">
-        <div class="cyber-grid"></div>
-        
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20 relative z-10">
-            <div class="grid lg:grid-cols-2 gap-12 items-center">
-                <!-- 左侧文字 -->
-                <div class="text-center lg:text-left">
-                    <div class="inline-block mb-4 px-4 py-2 border border-blue-500/50 rounded-full bg-blue-500/10">
-                        <span class="text-blue-400 text-sm font-mono tracking-wider">SYSTEM ONLINE v2.0</span>
-                    </div>
-                    <h1 class="text-4xl md:text-6xl font-bold text-white mb-6 leading-tight">
-                        智能目标识别<br>
-                        <span class="text-transparent bg-clip-text bg-gradient-to-r from-blue-400 via-cyan-400 to-purple-500 neon-text">门闸控制系统</span>
-                    </h1>
-                    <p class="text-xl text-slate-400 mb-8 font-mono">
-                        <span class="text-emerald-400">></span> 基于 YOLO 目标检测 + 多类别识别算法<br>
-                        <span class="text-emerald-400">></span> 采集-推理-展示 全链路解决方案
-                    </p>
-                    <div class="flex flex-col sm:flex-row gap-4 justify-center lg:justify-start">
-                        <a href="#background" class="cyber-btn px-8 py-3 rounded-lg font-semibold">
-                            <i class="fa-solid fa-rocket mr-2"></i>启动探索
-                        </a>
-                        <a href="#demo" class="px-8 py-3 bg-slate-800/50 hover:bg-slate-700/50 text-white rounded-lg font-semibold transition-all border border-slate-600 hover:border-slate-500 backdrop-blur-sm">
-                            <i class="fa-solid fa-eye mr-2"></i>查看演示
-                        </a>
-                    </div>
+        <section class="care-section">
+            <h2 class="section-title">想对你说</h2>
+            <div class="care-grid">
+                <div class="care-card" data-type="memory" data-hover>
+                    <span class="care-icon">💭</span>
+                    <div class="care-text">回忆碎片</div>
                 </div>
-                
-                <!-- 右侧：科幻检测框 -->
-                <div class="flex justify-center">
-                    <div class="relative w-80 h-96 bg-slate-900/50 rounded-2xl border-2 border-blue-500/30 shadow-2xl overflow-hidden backdrop-blur-sm">
-                        <!-- HUD 装饰 -->
-                        <div class="absolute top-2 left-2 right-2 flex justify-between items-center text-xs text-blue-400 font-mono">
-                            <span>TARGET: SCANNING</span>
-                            <span class="flex items-center">
-                                <span class="w-2 h-2 bg-emerald-400 rounded-full mr-1 pulse"></span>
-                                LIVE
-                            </span>
-                        </div>
-                        
-                        <!-- 模拟摄像头画面 -->
-                        <div class="absolute inset-8 bg-slate-950 rounded-lg flex items-center justify-center border border-slate-700">
-                            <div class="text-center">
-                                <i class="fa-solid fa-bullseye text-6xl text-slate-700 mb-2"></i>
-                                <p class="text-slate-600 text-xs font-mono">AWAITING TARGET</p>
-                            </div>
-                        </div>
-                        
-                        <!-- 检测框 -->
-                        <div class="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-48 h-48 border-2 border-cyan-400 rounded-lg">
-                            <div class="scan-line"></div>
-                            <!-- 检测框角落装饰 -->
-                            <div class="absolute -top-1 -left-1 w-6 h-6 border-t-4 border-l-4 border-cyan-400"></div>
-                            <div class="absolute -top-1 -right-1 w-6 h-6 border-t-4 border-r-4 border-cyan-400"></div>
-                            <div class="absolute -bottom-1 -left-1 w-6 h-6 border-b-4 border-l-4 border-cyan-400"></div>
-                            <div class="absolute -bottom-1 -right-1 w-6 h-6 border-b-4 border-r-4 border-cyan-400"></div>
-                        </div>
-                        
-                        <!-- 底部数据 -->
-                        <div class="absolute bottom-2 left-2 right-2 text-xs text-slate-400 font-mono">
-                            <div class="flex justify-between">
-                                <span>CONF: <span class="text-emerald-400">--.--%</span></span>
-                                <span>CLASS: <span class="text-cyan-400">---</span></span>
-                            </div>
-                        </div>
-                    </div>
+                <div class="care-card" data-type="memory" data-hover>
+                    <span class="care-icon">💕</span>
+                    <div class="care-text">心动瞬间</div>
+                </div>
+                <div class="care-card" data-type="memory" data-hover>
+                    <span class="care-icon">✨</span>
+                    <div class="care-text">那些时光</div>
+                </div>
+                <div class="care-card" data-type="memory" data-hover>
+                    <span class="care-icon">🌸</span>
+                    <div class="care-text">温柔记忆</div>
+                </div>
+                <div class="care-card" data-type="memory" data-hover>
+                    <span class="care-icon">🌙</span>
+                    <div class="care-text">思念成瘾</div>
+                </div>
+                <div class="care-card" data-type="memory" data-hover>
+                    <span class="care-icon">👻</span>
+                    <div class="care-text">我的小鬼</div>
                 </div>
             </div>
-        </div>
-    </section>
+        </section>
 
-    <!-- 项目背景 -->
-    <section id="background" class="py-24 bg-slate-900 relative overflow-hidden">
-        <!-- 装饰性背景元素 -->
-        <div class="absolute top-0 right-0 w-96 h-96 bg-blue-500/5 rounded-full blur-3xl"></div>
-        <div class="absolute bottom-0 left-0 w-96 h-96 bg-purple-500/5 rounded-full blur-3xl"></div>
-        
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
-            <div class="text-center mb-16">
-                <div class="inline-block mb-4">
-                    <span class="text-blue-400 font-mono text-sm tracking-widest">// PROJECT_BACKGROUND</span>
-                </div>
-                <h2 class="text-3xl md:text-5xl font-bold text-white mb-4">
-                    项目背景与<span class="text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-purple-500">意义</span>
-                </h2>
-                <div class="w-24 h-1 bg-gradient-to-r from-blue-600 to-purple-600 mx-auto rounded-full"></div>
+        <!-- 专属叮嘱按钮区 -->
+        <section class="message-section">
+            <h2 class="section-title">专属叮嘱</h2>
+            <div class="btn-group">
+                <button class="care-btn" data-type="ice" data-hover>少喝冰饮</button>
+                <button class="care-btn" data-type="sport" data-hover>多运动</button>
+                <button class="care-btn" data-type="eat" data-hover>好好吃饭</button>
+                <button class="care-btn" data-type="sleep" data-hover>早点睡觉</button>
+                <button class="care-btn" data-type="care" data-hover>照顾自己</button>
+                <button class="care-btn" data-type="miss" data-hover>随时找我</button>
             </div>
+        </section>
+
+        <footer>
+            <p>愿岁月漫长 · 你都是我的小鬼</p>
+        </footer>
+    </div>
+
+    <script>
+        // 自定义光标
+        const cursor = document.getElementById('cursor');
+        const cursorDot = document.getElementById('cursor-dot');
+
+        document.addEventListener('mousemove', (e) => {
+            cursor.style.left = e.clientX + 'px';
+            cursor.style.top = e.clientY + 'px';
+            cursorDot.style.left = e.clientX + 'px';
+            cursorDot.style.top = e.clientY + 'px';
+        });
+
+        // 悬停效果
+        const hoverElements = document.querySelectorAll('[data-hover], .care-card, .days-container, .care-btn, .close-btn, #daysClick');
+        hoverElements.forEach(el => {
+            el.addEventListener('mouseenter', () => cursor.classList.add('hover'));
+            el.addEventListener('mouseleave', () => cursor.classList.remove('hover'));
+        });
+
+        // 点击波纹效果
+        document.addEventListener('click', (e) => {
+            const ripple = document.createElement('div');
+            ripple.className = 'ripple';
+            ripple.style.left = e.clientX - 25 + 'px';
+            ripple.style.top = e.clientY - 25 + 'px';
+            ripple.style.width = '50px';
+            ripple.style.height = '50px';
+            document.body.appendChild(ripple);
             
-            <div class="grid md:grid-cols-3 gap-8">
-                <div class="cyber-card p-8 rounded-2xl group cursor-pointer">
-                    <div class="w-16 h-16 bg-gradient-to-br from-blue-500/20 to-purple-500/20 rounded-2xl flex items-center justify-center mb-6 group-hover:scale-110 transition-transform duration-300">
-                        <i class="fa-solid fa-door-closed text-3xl text-blue-400 glow-icon"></i>
-                    </div>
-                    <div class="flex items-center mb-3">
-                        <span class="text-blue-400 font-mono text-sm mr-2">01</span>
-                        <h3 class="text-xl font-bold text-white">传统门禁的局限</h3>
-                    </div>
-                    <p class="text-slate-400 leading-relaxed">
-                        传统门禁依赖刷卡、密码等交互方式，在特殊场景下存在通行效率低、用户体验差等问题，需要更智能的解决方案。
-                    </p>
-                    <div class="mt-4 flex items-center text-blue-400 text-sm opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-                        <span>了解更多</span>
-                        <i class="fa-solid fa-arrow-right ml-2 group-hover:translate-x-2 transition-transform"></i>
-                    </div>
-                </div>
-                
-                <div class="cyber-card p-8 rounded-2xl group cursor-pointer">
-                    <div class="w-16 h-16 bg-gradient-to-br from-emerald-500/20 to-cyan-500/20 rounded-2xl flex items-center justify-center mb-6 group-hover:scale-110 transition-transform duration-300">
-                        <i class="fa-solid fa-brain text-3xl text-emerald-400 glow-icon"></i>
-                    </div>
-                    <div class="flex items-center mb-3">
-                        <span class="text-emerald-400 font-mono text-sm mr-2">02</span>
-                        <h3 class="text-xl font-bold text-white">AI 视觉的赋能</h3>
-                    </div>
-                    <p class="text-slate-400 leading-relaxed">
-                        计算机视觉与深度学习技术的成熟，使得基于视频流的实时目标检测成为可能，为门闸系统的智能化升级提供了技术基础。
-                    </p>
-                    <div class="mt-4 flex items-center text-emerald-400 text-sm opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-                        <span>了解更多</span>
-                        <i class="fa-solid fa-arrow-right ml-2 group-hover:translate-x-2 transition-transform"></i>
-                    </div>
-                </div>
-                
-                <div class="cyber-card p-8 rounded-2xl group cursor-pointer">
-                    <div class="w-16 h-16 bg-gradient-to-br from-amber-500/20 to-orange-500/20 rounded-2xl flex items-center justify-center mb-6 group-hover:scale-110 transition-transform duration-300">
-                        <i class="fa-solid fa-chart-network text-3xl text-amber-400 glow-icon"></i>
-                    </div>
-                    <div class="flex items-center mb-3">
-                        <span class="text-amber-400 font-mono text-sm mr-2">03</span>
-                        <h3 class="text-xl font-bold text-white">智能化管理需求</h3>
-                    </div>
-                    <p class="text-slate-400 leading-relaxed">
-                        现代社区、园区、校园对通行效率、数据记录、安全管控提出了更高要求，智能化门闸系统成为刚需。
-                    </p>
-                    <div class="mt-4 flex items-center text-amber-400 text-sm opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-                        <span>了解更多</span>
-                        <i class="fa-solid fa-arrow-right ml-2 group-hover:translate-x-2 transition-transform"></i>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </section>
+            setTimeout(() => ripple.remove(), 600);
+        });
 
-    <!-- 系统架构 -->
-    <section class="py-24 bg-slate-950 relative">
-        <div class="absolute inset-0 opacity-30" style="background-image: radial-gradient(circle at 1px 1px, rgba(59, 130, 246, 0.15) 1px, transparent 0); background-size: 40px 40px;"></div>
+        // 创建星空 - 星星向下动
+        function createStars(containerId, count, size, opacity) {
+            const container = document.getElementById(containerId);
+            for (let i = 0; i < count; i++) {
+                const star = document.createElement('div');
+                star.className = 'star';
+                star.style.width = size + 'px';
+                star.style.height = size + 'px';
+                star.style.left = Math.random() * 100 + '%';
+                star.style.top = Math.random() * 100 + '%';
+                star.style.opacity = opacity;
+                star.style.animationDelay = Math.random() * 3 + 's';
+                container.appendChild(star);
+            }
+        }
+
+        createStars('stars', 200, 2, 0.8);
+        createStars('stars2', 150, 1.5, 0.6);
+        createStars('stars3', 100, 1, 0.4);
+
+        // 流星划过效果 - 星空流星
+        function createMeteor() {
+            const meteor = document.createElement('div');
+            meteor.className = 'meteor';
+            meteor.style.top = Math.random() * window.innerHeight * 0.7 + 'px';
+            meteor.style.right = -Math.random() * window.innerWidth * 0.5 + 'px';
+            meteor.style.animationDuration = (Math.random() * 3 + 4) + 's';
+            document.body.appendChild(meteor);
+
+            setTimeout(() => {
+                meteor.remove();
+            }, 6000);
+        }
+
+        // 更多流星
+        setInterval(() => {
+            if (Math.random() > 0.2) {
+                createMeteor();
+            }
+            if (Math.random() > 0.5) {
+                setTimeout(createMeteor, 300);
+            }
+            if (Math.random() > 0.7) {
+                setTimeout(createMeteor, 600);
+            }
+        }, 600);
+
+        // 羽毛爆炸效果
+        const featherEmojis = ['🪶', '🦢', '🕊️'];
         
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
-            <div class="text-center mb-16">
-                <div class="inline-block mb-4">
-                    <span class="text-purple-400 font-mono text-sm tracking-widest">// SYSTEM_ARCHITECTURE</span>
-                </div>
-                <h2 class="text-3xl md:text-5xl font-bold text-white mb-4">
-                    三段式技术<span class="text-transparent bg-clip-text bg-gradient-to-r from-purple-400 to-pink-500">架构</span>
-                </h2>
-                <div class="w-24 h-1 bg-gradient-to-r from-purple-600 to-pink-600 mx-auto rounded-full"></div>
-            </div>
-            
-            <div class="cyber-card p-12 rounded-3xl">
-                <!-- 三段式流程图 -->
-                <div class="flex flex-col md:flex-row items-center justify-center gap-6 md:gap-8 flex-wrap">
-                    <div class="flex flex-col items-center group">
-                        <div class="w-36 h-28 bg-gradient-to-br from-slate-800 to-slate-900 border-2 border-blue-500/50 rounded-2xl flex items-center justify-center font-semibold text-slate-200 group-hover:border-blue-400 group-hover:shadow-lg group-hover:shadow-blue-500/20 transition-all duration-300 relative overflow-hidden">
-                            <div class="absolute inset-0 bg-gradient-to-t from-blue-500/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity"></div>
-                            <div class="text-center z-10">
-                                <i class="fa-solid fa-video text-3xl text-blue-400 mb-2"></i>
-                                <span class="block">采集层</span>
-                            </div>
-                        </div>
-                        <span class="text-xs text-slate-500 mt-3 font-mono">硬件与视频流</span>
-                    </div>
-                    
-                    <div class="flex flex-col items-center">
-                        <i class="fa-solid fa-arrow-right text-blue-500 text-3xl hidden md:block pulse"></i>
-                        <i class="fa-solid fa-arrow-down text-blue-500 text-3xl md:hidden pulse"></i>
-                    </div>
-                    
-                    <div class="flex flex-col items-center group">
-                        <div class="w-36 h-28 bg-gradient-to-br from-slate-800 to-slate-900 border-2 border-purple-500/50 rounded-2xl flex items-center justify-center font-semibold text-slate-200 group-hover:border-purple-400 group-hover:shadow-lg group-hover:shadow-purple-500/20 transition-all duration-300 relative overflow-hidden">
-                            <div class="absolute inset-0 bg-gradient-to-t from-purple-500/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity"></div>
-                            <div class="text-center z-10">
-                                <i class="fa-solid fa-microchip text-3xl text-purple-400 mb-2"></i>
-                                <span class="block">推理层</span>
-                            </div>
-                        </div>
-                        <span class="text-xs text-slate-500 mt-3 font-mono">算法与逻辑控制</span>
-                    </div>
-                    
-                    <div class="flex flex-col items-center">
-                        <i class="fa-solid fa-arrow-right text-purple-500 text-3xl hidden md:block pulse"></i>
-                        <i class="fa-solid fa-arrow-down text-purple-500 text-3xl md:hidden pulse"></i>
-                    </div>
-                    
-                    <div class="flex flex-col items-center group">
-                        <div class="w-36 h-28 bg-gradient-to-br from-slate-800 to-slate-900 border-2 border-emerald-500/50 rounded-2xl flex items-center justify-center font-semibold text-slate-200 group-hover:border-emerald-400 group-hover:shadow-lg group-hover:shadow-emerald-500/20 transition-all duration-300 relative overflow-hidden">
-                            <div class="absolute inset-0 bg-gradient-to-t from-emerald-500/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity"></div>
-                            <div class="text-center z-10">
-                                <i class="fa-solid fa-display text-3xl text-emerald-400 mb-2"></i>
-                                <span class="block">展示层</span>
-                            </div>
-                        </div>
-                        <span class="text-xs text-slate-500 mt-3 font-mono">可视化与交互</span>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </section>
+        function createFeathers(x, y) {
+            for (let i = 0; i < 12; i++) {
+                const feather = document.createElement('div');
+                feather.className = 'feather';
+                feather.textContent = featherEmojis[Math.floor(Math.random() * featherEmojis.length)];
+                feather.style.left = x + 'px';
+                feather.style.top = y + 'px';
+                feather.style.setProperty('--tx', (Math.random() - 0.5) * 200);
+                feather.style.setProperty('--ty', (Math.random() - 0.5) * 200);
+                feather.style.setProperty('--rot', (Math.random() - 0.5) * 360);
+                document.body.appendChild(feather);
 
-    <!-- 技术栈 -->
-    <section id="tech" class="py-24 bg-slate-900 relative overflow-hidden">
-        <div class="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-gradient-to-r from-blue-500/5 to-purple-500/5 rounded-full blur-3xl"></div>
+                setTimeout(() => {
+                    if (feather.parentNode) {
+                        feather.remove();
+                    }
+                }, 1500);
+            }
+        }
+
+        // 小鸟 - 点击爆炸羽毛
+        const birdEmojis = ['🐦', '🐤', '🐥', '🦜', '🕊️'];
         
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
-            <div class="text-center mb-16">
-                <div class="inline-block mb-4">
-                    <span class="text-cyan-400 font-mono text-sm tracking-widest">// TECH_STACK</span>
-                </div>
-                <h2 class="text-3xl md:text-5xl font-bold text-white mb-4">
-                    核心技术<span class="text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 to-blue-500">栈</span>
-                </h2>
-                <div class="w-24 h-1 bg-gradient-to-r from-cyan-600 to-blue-600 mx-auto rounded-full"></div>
-            </div>
-            
-            <div class="grid grid-cols-2 md:grid-cols-4 gap-6">
-                <div class="cyber-card p-8 rounded-2xl text-center group cursor-pointer">
-                    <div class="text-5xl mb-6 text-slate-500 group-hover:text-blue-400 transition-all duration-300 group-hover:scale-110 transform">
-                        <i class="fa-solid fa-bolt"></i>
-                    </div>
-                    <h3 class="font-bold text-white text-lg mb-2">YOLOv10/11</h3>
-                    <p class="text-sm text-slate-500 group-hover:text-slate-400 transition-colors">目标检测算法</p>
-                    <div class="mt-4 h-1 bg-slate-800 rounded-full overflow-hidden">
-                        <div class="h-full w-0 bg-gradient-to-r from-blue-500 to-cyan-500 group-hover:w-full transition-all duration-700"></div>
-                    </div>
-                </div>
-                
-                <div class="cyber-card p-8 rounded-2xl text-center group cursor-pointer">
-                    <div class="text-5xl mb-6 text-slate-500 group-hover:text-purple-400 transition-all duration-300 group-hover:scale-110 transform">
-                        <i class="fa-solid fa-microchip"></i>
-                    </div>
-                    <h3 class="font-bold text-white text-lg mb-2">TensorRT</h3>
-                    <p class="text-sm text-slate-500 group-hover:text-slate-400 transition-colors">高性能推理引擎</p>
-                    <div class="mt-4 h-1 bg-slate-800 rounded-full overflow-hidden">
-                        <div class="h-full w-0 bg-gradient-to-r from-purple-500 to-pink-500 group-hover:w-full transition-all duration-700"></div>
-                    </div>
-                </div>
-                
-                <div class="cyber-card p-8 rounded-2xl text-center group cursor-pointer">
-                    <div class="text-5xl mb-6 text-slate-500 group-hover:text-emerald-400 transition-all duration-300 group-hover:scale-110 transform">
-                        <i class="fa-brands fa-python"></i>
-                    </div>
-                    <h3 class="font-bold text-white text-lg mb-2">Python</h3>
-                    <p class="text-sm text-slate-500 group-hover:text-slate-400 transition-colors">后端逻辑开发</p>
-                    <div class="mt-4 h-1 bg-slate-800 rounded-full overflow-hidden">
-                        <div class="h-full w-0 bg-gradient-to-r from-emerald-500 to-teal-500 group-hover:w-full transition-all duration-700"></div>
-                    </div>
-                </div>
-                
-                <div class="cyber-card p-8 rounded-2xl text-center group cursor-pointer">
-                    <div class="text-5xl mb-6 text-slate-500 group-hover:text-amber-400 transition-all duration-300 group-hover:scale-110 transform">
-                        <i class="fa-solid fa-display"></i>
-                    </div>
-                    <h3 class="font-bold text-white text-lg mb-2">NiceGUI</h3>
-                    <p class="text-sm text-slate-500 group-hover:text-slate-400 transition-colors">前端可视化界面</p>
-                    <div class="mt-4 h-1 bg-slate-800 rounded-full overflow-hidden">
-                        <div class="h-full w-0 bg-gradient-to-r from-amber-500 to-orange-500 group-hover:w-full transition-all duration-700"></div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </section>
+        function createBird() {
+            const bird = document.createElement('div');
+            bird.className = 'bird';
+            bird.textContent = birdEmojis[Math.floor(Math.random() * birdEmojis.length)];
+            bird.style.top = Math.random() * (window.innerHeight * 0.6) + 'px';
+            bird.style.animation = `birdFly ${Math.random() * 10 + 15}s linear forwards`;
+            document.body.appendChild(bird);
 
-    <!-- 功能模块 -->
-    <section class="py-24 bg-slate-950 relative">
-        <div class="absolute inset-0 opacity-20" style="background-image: linear-gradient(rgba(59, 130, 246, 0.1) 1px, transparent 1px), linear-gradient(90deg, rgba(59, 130, 246, 0.1) 1px, transparent 1px); background-size: 60px 60px;"></div>
-        
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
-            <div class="text-center mb-16">
-                <div class="inline-block mb-4">
-                    <span class="text-emerald-400 font-mono text-sm tracking-widest">// FEATURE_MODULES</span>
-                </div>
-                <h2 class="text-3xl md:text-5xl font-bold text-white mb-4">
-                    系统功能<span class="text-transparent bg-clip-text bg-gradient-to-r from-emerald-400 to-teal-500">模块</span>
-                </h2>
-                <div class="w-24 h-1 bg-gradient-to-r from-emerald-600 to-teal-600 mx-auto rounded-full"></div>
-            </div>
-            
-            <div class="grid md:grid-cols-2 gap-8">
-                <div class="cyber-card p-8 rounded-2xl flex gap-6 group cursor-pointer">
-                    <div class="flex-shrink-0 w-20 h-20 bg-gradient-to-br from-blue-500/20 to-cyan-500/20 rounded-2xl flex items-center justify-center group-hover:scale-110 transition-transform duration-300">
-                        <i class="fa-solid fa-bullseye text-3xl text-blue-400 glow-icon"></i>
-                    </div>
-                    <div>
-                        <div class="flex items-center mb-3">
-                            <span class="text-blue-400 font-mono text-sm mr-2">[01]</span>
-                            <h3 class="text-xl font-bold text-white">多目标检测识别</h3>
-                        </div>
-                        <p class="text-slate-400 leading-relaxed">
-                            基于YOLO算法实现多类别目标检测，支持多种目标类型的实时识别与定位，输出检测框与置信度。
-                        </p>
-                        <div class="mt-4 flex flex-wrap gap-2">
-                            <span class="px-3 py-1 bg-blue-500/10 text-blue-400 text-xs rounded-full border border-blue-500/30">目标检测</span>
-                            <span class="px-3 py-1 bg-cyan-500/10 text-cyan-400 text-xs rounded-full border border-cyan-500/30">多分类</span>
-                        </div>
-                    </div>
-                </div>
-                
-                <div class="cyber-card p-8 rounded-2xl flex gap-6 group cursor-pointer">
-                    <div class="flex-shrink-0 w-20 h-20 bg-gradient-to-br from-emerald-500/20 to-teal-500/20 rounded-2xl flex items-center justify-center group-hover:scale-110 transition-transform duration-300">
-                        <i class="fa-solid fa-sliders text-3xl text-emerald-400 glow-icon"></i>
-                    </div>
-                    <div>
-                        <div class="flex items-center mb-3">
-                            <span class="text-emerald-400 font-mono text-sm mr-2">[02]</span>
-                            <h3 class="text-xl font-bold text-white">智能逻辑控制</h3>
-                        </div>
-                        <p class="text-slate-400 leading-relaxed">
-                            灵活的逻辑判断机制，可配置检测目标与门闸控制的关联规则，根据业务需求定制通行策略。
-                        </p>
-                        <div class="mt-4 flex flex-wrap gap-2">
-                            <span class="px-3 py-1 bg-emerald-500/10 text-emerald-400 text-xs rounded-full border border-emerald-500/30">规则配置</span>
-                            <span class="px-3 py-1 bg-teal-500/10 text-teal-400 text-xs rounded-full border border-teal-500/30">逻辑判断</span>
-                        </div>
-                    </div>
-                </div>
-                
-                <div class="cyber-card p-8 rounded-2xl flex gap-6 group cursor-pointer">
-                    <div class="flex-shrink-0 w-20 h-20 bg-gradient-to-br from-amber-500/20 to-orange-500/20 rounded-2xl flex items-center justify-center group-hover:scale-110 transition-transform duration-300">
-                        <i class="fa-solid fa-database text-3xl text-amber-400 glow-icon"></i>
-                    </div>
-                    <div>
-                        <div class="flex items-center mb-3">
-                            <span class="text-amber-400 font-mono text-sm mr-2">[03]</span>
-                            <h3 class="text-xl font-bold text-white">通行数据记录</h3>
-                        </div>
-                        <p class="text-slate-400 leading-relaxed">
-                            自动保存所有通行事件记录，包括时间戳、目标类型、检测截图等信息，支持历史数据查询与追溯。
-                        </p>
-                        <div class="mt-4 flex flex-wrap gap-2">
-                            <span class="px-3 py-1 bg-amber-500/10 text-amber-400 text-xs rounded-full border border-amber-500/30">数据存储</span>
-                            <span class="px-3 py-1 bg-orange-500/10 text-orange-400 text-xs rounded-full border border-orange-500/30">历史追溯</span>
-                        </div>
-                    </div>
-                </div>
-                
-                <div class="cyber-card p-8 rounded-2xl flex gap-6 group cursor-pointer">
-                    <div class="flex-shrink-0 w-20 h-20 bg-gradient-to-br from-purple-500/20 to-pink-500/20 rounded-2xl flex items-center justify-center group-hover:scale-110 transition-transform duration-300">
-                        <i class="fa-solid fa-chart-bar text-3xl text-purple-400 glow-icon"></i>
-                    </div>
-                    <div>
-                        <div class="flex items-center mb-3">
-                            <span class="text-purple-400 font-mono text-sm mr-2">[04]</span>
-                            <h3 class="text-xl font-bold text-white">可视化交互界面</h3>
-                        </div>
-                        <p class="text-slate-400 leading-relaxed">
-                            基于NiceGUI构建的现代化Web界面，实时展示检测画面、统计数据与系统状态，支持远程管理。
-                        </p>
-                        <div class="mt-4 flex flex-wrap gap-2">
-                            <span class="px-3 py-1 bg-purple-500/10 text-purple-400 text-xs rounded-full border border-purple-500/30">实时监控</span>
-                            <span class="px-3 py-1 bg-pink-500/10 text-pink-400 text-xs rounded-full border border-pink-500/30">数据可视化</span>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </section>
+            // 点击小鸟 - 爆炸羽毛
+            bird.addEventListener('click', (e) => {
+                e.stopPropagation();
+                const rect = bird.getBoundingClientRect();
+                createFeathers(rect.left + rect.width / 2, rect.top + rect.height / 2);
+                bird.remove();
+            });
 
-    <!-- 效果演示 -->
-    <section id="demo" class="py-24 bg-slate-900 relative overflow-hidden">
-        <div class="absolute top-0 right-0 w-96 h-96 bg-emerald-500/5 rounded-full blur-3xl"></div>
-        <div class="absolute bottom-0 left-0 w-96 h-96 bg-blue-500/5 rounded-full blur-3xl"></div>
-        
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
-            <div class="text-center mb-16">
-                <div class="inline-block mb-4">
-                    <span class="text-pink-400 font-mono text-sm tracking-widest">// LIVE_DEMO</span>
-                </div>
-                <h2 class="text-3xl md:text-5xl font-bold text-white mb-4">
-                    效果<span class="text-transparent bg-clip-text bg-gradient-to-r from-pink-400 to-rose-500">演示</span>
-                </h2>
-                <div class="w-24 h-1 bg-gradient-to-r from-pink-600 to-rose-600 mx-auto rounded-full"></div>
-            </div>
-            
-            <div class="grid md:grid-cols-2 gap-8">
-                <!-- 检测效果对比图 -->
-                <div class="cyber-card rounded-2xl p-8">
-                    <h3 class="font-bold text-white mb-6 text-center flex items-center justify-center">
-                        <i class="fa-solid fa-eye mr-2 text-blue-400"></i>
-                        YOLO 目标检测效果示意
-                    </h3>
-                    <div class="grid grid-cols-2 gap-6">
-                        <div class="relative group">
-                            <div class="aspect-[4/3] bg-slate-950 rounded-xl flex items-center justify-center border border-slate-700 group-hover:border-slate-600 transition-colors">
-                                <div class="text-center">
-                                    <i class="fa-solid fa-shapes text-5xl text-slate-700 mb-2"></i>
-                                    <p class="text-slate-600 text-xs font-mono">INPUT</p>
-                                </div>
-                            </div>
-                            <p class="text-xs text-center mt-3 text-slate-500 font-mono">原始画面</p>
-                        </div>
-                        <div class="relative group">
-                            <div class="aspect-[4/3] bg-slate-950 rounded-xl flex items-center justify-center border border-blue-500/50 relative overflow-hidden">
-                                <div class="absolute inset-0 bg-gradient-to-t from-blue-500/5 to-transparent"></div>
-                                <div class="text-center relative z-10">
-                                    <i class="fa-solid fa-shapes text-5xl text-slate-600 mb-2"></i>
-                                    <!-- 模拟检测框 -->
-                                    <div class="absolute top-4 left-4 w-16 h-20 border-2 border-blue-400 rounded opacity-80"></div>
-                                    <div class="absolute top-6 right-6 w-14 h-16 border-2 border-emerald-400 rounded opacity-80"></div>
-                                    <div class="absolute bottom-4 left-1/3 w-12 h-14 border-2 border-amber-400 rounded opacity-80"></div>
-                                </div>
-                            </div>
-                            <p class="text-xs text-center mt-3 text-slate-500 font-mono">
-                                <span class="text-blue-400">></span> 检测后 <span class="text-blue-400"><</span>
-                            </p>
-                        </div>
-                    </div>
-                </div>
-                
-                <!-- 通行记录表格 -->
-                <div class="cyber-card rounded-2xl p-8">
-                    <h3 class="font-bold text-white mb-6 text-center flex items-center justify-center">
-                        <i class="fa-solid fa-list-alt mr-2 text-emerald-400"></i>
-                        通行事件记录
-                    </h3>
-                    <div class="overflow-hidden rounded-xl border border-slate-700">
-                        <table class="w-full text-sm text-left cyber-table">
-                            <thead>
-                                <tr>
-                                    <th class="px-4 py-3 text-slate-300 font-mono">目标类型</th>
-                                    <th class="px-4 py-3 text-slate-300 font-mono">时间戳</th>
-                                    <th class="px-4 py-3 text-slate-300 font-mono">状态</th>
-                                </tr>
-                            </thead>
-                            <tbody class="divide-y divide-slate-700/50">
-                                <tr>
-                                    <td class="px-4 py-3 font-medium text-slate-200">
-                                        <span class="flex items-center">
-                                            <i class="fa-solid fa-person-walking mr-2 text-blue-400"></i>
-                                            目标A
-                                        </span>
-                                    </td>
-                                    <td class="px-4 py-3 text-slate-400 font-mono text-xs">2025-10-01 08:30:01</td>
-                                    <td class="px-4 py-3">
-                                        <span class="px-3 py-1 bg-emerald-500/10 text-emerald-400 rounded text-xs border border-emerald-500/30">
-                                            <i class="fa-solid fa-check mr-1"></i>已处理
-                                        </span>
-                                    </td>
-                                </tr>
-                                <tr>
-                                    <td class="px-4 py-3 font-medium text-slate-200">
-                                        <span class="flex items-center">
-                                            <i class="fa-solid fa-bicycle mr-2 text-cyan-400"></i>
-                                            目标B
-                                        </span>
-                                    </td>
-                                    <td class="px-4 py-3 text-slate-400 font-mono text-xs">2025-10-01 08:32:15</td>
-                                    <td class="px-4 py-3">
-                                        <span class="px-3 py-1 bg-emerald-500/10 text-emerald-400 rounded text-xs border border-emerald-500/30">
-                                            <i class="fa-solid fa-check mr-1"></i>已处理
-                                        </span>
-                                    </td>
-                                </tr>
-                                <tr>
-                                    <td class="px-4 py-3 font-medium text-slate-200">
-                                        <span class="flex items-center">
-                                            <i class="fa-solid fa-motorcycle mr-2 text-amber-400"></i>
-                                            目标C
-                                        </span>
-                                    </td>
-                                    <td class="px-4 py-3 text-slate-400 font-mono text-xs">2025-10-01 08:35:00</td>
-                                    <td class="px-4 py-3">
-                                        <span class="px-3 py-1 bg-slate-500/10 text-slate-400 rounded text-xs border border-slate-500/30">
-                                            <i class="fa-solid fa-clock mr-1"></i>处理中
-                                        </span>
-                                    </td>
-                                </tr>
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </section>
+            setTimeout(() => {
+                if (bird.parentNode) {
+                    bird.remove();
+                }
+            }, 25000);
+        }
 
-    <!-- 团队/总结 -->
-    <section id="team" class="py-24 bg-gradient-to-b from-slate-950 to-slate-900 relative">
-        <div class="absolute inset-0 overflow-hidden">
-            <div class="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-[800px] h-[800px] bg-gradient-to-r from-blue-500/10 via-purple-500/5 to-transparent rounded-full blur-3xl"></div>
-        </div>
-        
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
-            <div class="text-center mb-16">
-                <div class="inline-block mb-4">
-                    <span class="text-blue-400 font-mono text-sm tracking-widest">// PROJECT_SUMMARY</span>
-                </div>
-                <h2 class="text-3xl md:text-5xl font-bold text-white mb-4">
-                    项目<span class="text-transparent bg-clip-text bg-gradient-to-r from-blue-400 via-purple-400 to-pink-400">总结</span>
-                </h2>
-                <div class="w-24 h-1 bg-gradient-to-r from-blue-600 via-purple-600 to-pink-600 mx-auto rounded-full"></div>
-            </div>
-            
-            <div class="max-w-4xl mx-auto text-center">
-                <div class="cyber-card p-12 rounded-3xl mb-12">
-                    <p class="text-lg text-slate-300 mb-8 leading-relaxed">
-                        本项目采用<span class="text-blue-400 font-semibold">“采集-推理-展示”</span>三段式全解耦架构，
-                        基于<span class="text-purple-400 font-semibold">YOLOv10/11</span>目标检测算法，
-                        结合<span class="text-emerald-400 font-semibold">TensorRT</span>高性能推理引擎，
-                        实现了一套灵活、高效、可扩展的智能门闸控制系统。
-                        系统支持多类别目标检测，可根据实际需求配置通行规则，
-                        为各类场景的智能化通行管理提供了完整的技术解决方案。
-                    </p>
-                </div>
-                
-                <div class="flex justify-center gap-12 flex-wrap">
-                    <div class="text-center group">
-                        <div class="text-5xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-cyan-400 mb-2 group-hover:scale-110 transition-transform duration-300">
-                            < 30ms
-                        </div>
-                        <div class="text-slate-500 text-sm font-mono">检测延迟</div>
-                    </div>
-                    <div class="text-center group">
-                        <div class="text-5xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-purple-400 to-pink-400 mb-2 group-hover:scale-110 transition-transform duration-300">
-                            5+
-                        </div>
-                        <div class="text-slate-500 text-sm font-mono">支持类别</div>
-                    </div>
-                    <div class="text-center group">
-                        <div class="text-5xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-emerald-400 to-teal-400 mb-2 group-hover:scale-110 transition-transform duration-300">
-                            24/7
-                        </div>
-                        <div class="text-slate-500 text-sm font-mono">稳定运行</div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </section>
+        // 定时生成小鸟
+        setInterval(() => {
+            if (Math.random() > 0.6) {
+                createBird();
+            }
+        }, 4000);
 
-    <!-- 页脚 -->
-    <footer class="bg-slate-950 py-8 border-t border-slate-800">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-            <div class="flex items-center justify-center mb-4">
-                <i class="fa-solid fa-door-open text-blue-400 text-xl mr-2"></i>
-                <span class="text-white font-bold tracking-wider">GATE_SYSTEM</span>
-            </div>
-            <p class="text-slate-600 text-sm font-mono">
-                <span class="text-blue-400">//</span> 智能目标识别门闸系统项目组 <span class="text-blue-400">//</span> 技术调研展示 <span class="text-blue-400">//</span>
-            </p>
-        </div>
-    </footer>
+        // 信的内容回忆及对应关闭文本
+        const memoryData = {
+            messages: [
+                "还记得高三第一次你问我的那道题吗？那个中午我都没睡着呢！",
+                "那时候上课满脑子都是你，完全抑制不住呀。",
+                "你知道吗？那时候我想你想得像有瘾一样，是沉思的瘾。",
+                "希望岁月多漫长，你都是我的小鬼。",
+                "遇到好事的那一秒，我就会立马想到你，想分享给你让你也开心。",
+                "还记得放假搬东西时在门口遇见你，我心里百感交集，都不知道说啥。",
+                "那时候我忐忑不安地收拾东西，就怕你不加我微信，怕你忘了我。",
+                "看到你加我微信的申请时，我真的如释重负，从来没那么开心过。",
+                "你说我很好啊我很好啊的时候，我真的...哭死。你怎么这么傻嘛。",
+                "闹别扭的时候，你不能说我不爱你了哇，我绝对不会的。",
+                "还记得第一次和你讲话，我常常开心、紧张、甚至是兴奋。",
+                "那时候我发现每天都要和你说话，只要有一天没说就好不舒服。",
+                "我并不觉得这是堕落，反而，只要我和你闹小别扭才是真的好让我难受。",
+                "直到放假离开的时候，我说过我要走的潇洒些，结果还是在想着你。",
+                "宝啊，我是该庆祝你非常爱我，还是该庆幸你有一颗小小的恋爱脑呢。",
+                "在和你从相遇、相知、相熟、最后走到一起的过程中，我发现我变了。",
+                "你现在还是个小女孩，所以，一定美美的哇。",
+                "我说我欠你一次好好的表白，这是一封羞羞的小情书哦。",
+                "我爱你，陈思颖！",
+                "希望你也能在遇到高兴的事时想到我，并告诉我。"
+            ],
+            closeTexts: [
+                "好感动呀",
+                "我也记得呢",
+                "继续看别的回忆",
+                "好害羞哦",
+                "我也爱你",
+                "你好傻呀",
+                "再看看别的",
+                "好的呀，小鬼",
+                "我也想你",
+                "会的会的",
+                "那时候真好",
+                "我都记得",
+                "还有吗还有吗",
+                "太甜啦",
+                "我的小鬼",
+                "会一直在一起的",
+                "好的呢",
+                "再看一个",
+                "💕💕💕",
+                "你真好"
+            ]
+        };
 
+        // 按钮反馈内容及对应关闭文本
+        const buttonData = {
+            ice: {
+                messages: [
+                    "喝冰的告诉我一声呀，不要偷偷喝啦！",
+                    "小鬼，又偷偷喝冰的啦？少喝点对肠胃不好哦",
+                    "实在想喝冰的，先吃点热的垫垫肚子好不好"
+                ],
+                closeTexts: [
+                    "不偷偷喝啦",
+                    "知道啦，少喝冰的",
+                    "先吃热的再喝"
+                ]
+            },
+            sport: {
+                messages: [
+                    "能不能陪我打打球哇！",
+                    "别一直坐着啦，起来动一动呀",
+                    "下楼散散步也好，要是不想动我陪你一起"
+                ],
+                closeTexts: [
+                    "好呀，陪你打球",
+                    "动一动就动一动",
+                    "那你陪我呀"
+                ]
+            },
+            eat: {
+                messages: [
+                    "天天吃面吃云吞可不行哦",
+                    "我的小鬼，有没有好好吃饭呀？",
+                    "不许偷懒不吃饭，好好吃饭才能身体棒棒"
+                ],
+                closeTexts: [
+                    "换点别的吃",
+                    "有好好吃饭啦",
+                    "身体棒棒哒"
+                ]
+            },
+            sleep: {
+                messages: [
+                    "别刷视频刷那么那么晚啊好不好哦",
+                    "看看现在几点啦？不许熬夜啦，快点放下手机睡觉",
+                    "熬夜对皮肤不好，还会变笨哦，乖乖睡觉梦里见呀"
+                ],
+                closeTexts: [
+                    "不刷啦，马上睡",
+                    "梦里见呀",
+                    "皮肤要好好的"
+                ]
+            },
+            care: {
+                messages: [
+                    "宝贝，一定要好好照顾自己呀，哪里不舒服要第一时间告诉我",
+                    "天气变了要及时添减衣服，不许自己硬扛着，我会心疼的",
+                    "照顾好自己，才有力气陪我好久好久呀"
+                ],
+                closeTexts: [
+                    "会好好照顾自己的",
+                    "知道啦，会添衣服",
+                    "要陪你好久好久"
+                ]
+            },
+            miss: {
+                messages: [
+                    "小鬼，有没有想我呀？想我就随时找我，我永远都在",
+                    "不管开心还是不开心，只要你想我了，随时都可以找我",
+                    "我随时待命哦，就等我的小鬼找我啦"
+                ],
+                closeTexts: [
+                    "超想你的，现在就找你",
+                    "开心不开心都找你",
+                    "随时待命，等我哦"
+                ]
+            }
+        };
+
+        // 关心话语弹窗逻辑
+        const careModal = document.getElementById('careModal');
+        const modalText = document.getElementById('modalText');
+        const closeModal = document.getElementById('closeModal');
+        const careBtns = document.querySelectorAll('.care-btn');
+        const loveToast = document.getElementById('loveToast');
+        const daysClick = document.getElementById('daysClick');
+
+        // "想对你说"卡片点击 - 星空科幻感随机弹出信的内容
+        const careCards = document.querySelectorAll('.care-card[data-type="memory"]');
+        careCards.forEach(card => {
+            card.addEventListener('click', () => {
+                const randomIndex = Math.floor(Math.random() * memoryData.messages.length);
+                const randomMsg = memoryData.messages[randomIndex];
+                const randomClose = memoryData.closeTexts[Math.floor(Math.random() * memoryData.closeTexts.length)];
+                modalText.textContent = randomMsg;
+                closeModal.textContent = randomClose;
+                careModal.classList.add('active');
+            });
+        });
+
+        // 专属叮嘱按钮点击
+        careBtns.forEach(btn => {
+            btn.addEventListener('click', () => {
+                const type = btn.getAttribute('data-type');
+                const data = buttonData[type];
+                const randomMsg = data.messages[Math.floor(Math.random() * data.messages.length)];
+                const randomClose = data.closeTexts[Math.floor(Math.random() * data.closeTexts.length)];
+                modalText.textContent = randomMsg;
+                closeModal.textContent = randomClose;
+                careModal.classList.add('active');
+            });
+        });
+
+        // 关闭弹窗
+        closeModal.addEventListener('click', () => {
+            careModal.classList.remove('active');
+        });
+
+        careModal.addEventListener('click', (e) => {
+            if (e.target === careModal) {
+                careModal.classList.remove('active');
+            }
+        });
+
+        // 点击201天数字 - 弹出好看柔和的爱你哦小鬼
+        daysClick.addEventListener('click', () => {
+            loveToast.classList.add('active');
+            setTimeout(() => {
+                loveToast.classList.remove('active');
+            }, 2500);
+        });
+    </script>
 </body>
 </html>
